@@ -43,11 +43,11 @@ jobs:
       uses: codecov/codecov-action@v1
 
     - name: Build
-      if: contains(github.ref, 'releases') || contains(github.ref, 'master')
+      if: contains(github.ref, 'releases') || contains(github.ref, 'master') || contains(github.ref, 'main')
       run: npm run build
 
     - name: Deploy
-      if: contains(github.ref, 'releases') || contains(github.ref, 'master')
+      if: contains(github.ref, 'releases') || contains(github.ref, 'master') || contains(github.ref, 'main')
       run: |
         git config --global user.name brunocesarr
         git config --global user.email brunoc.15@hotmail.com
