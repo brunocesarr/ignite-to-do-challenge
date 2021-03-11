@@ -51,15 +51,12 @@ describe('My Tasks Page', () => {
 
     fireEvent.change(taskInput, {
       target: {
-        value: 'ReactJS Ignite Challenge'
+        value: '   '
       }
     });
     
     fireEvent.click(addTaskButton);
-
-    const addedFirstTaskTitle = screen.getByText('ReactJS Ignite Challenge');
-
-    expect(addedFirstTaskTitle).toHaveTextContent('ReactJS Ignite Challenge');
+    expect(screen.queryByTestId('task')).not.toBeInTheDocument();
   })
 
   it('should be able to remove a task', async () => {
