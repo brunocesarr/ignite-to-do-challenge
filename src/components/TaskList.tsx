@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import '../styles/tasklist.scss';
 
-import '../styles/tasklist.scss'
-
-import { FiTrash, FiCheckSquare } from 'react-icons/fi'
+import { useEffect, useState } from 'react';
+import { FiCheckSquare, FiTrash } from 'react-icons/fi';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Task {
-  id: number;
+  id: string;
   title: string;
   isComplete: boolean;
 }
@@ -13,34 +13,77 @@ interface Task {
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [isInvalidTitle, setIsInvalidTitle] = useState<boolean>(false);
 
-  function handleCreateNewTask() {
-    // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+  useEffect(() => {
+    if (isInvalidTitle)
+      setTimeout(() => {
+        setIsInvalidTitle(false);
+      }, 2000);
+  }, [isInvalidTitle]);
+
+  const validateTitle = () => {
+    if (!newTaskTitle)
+      return false;
+    if (newTaskTitle.trim().length === 0)
+      return false;
+
+    return true;
   }
 
-  function handleToggleTaskCompletion(id: number) {
-    // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+  const handleCreateNewTask = () => {
+    if (!validateTitle()) {
+      setIsInvalidTitle(true);
+      return;
+    }
+
+    const newTask : Task = {
+      id: uuidv4(),
+      title: newTaskTitle,
+      isComplete: false
+    }
+    setTasks([...tasks, newTask]);
   }
 
-  function handleRemoveTask(id: number) {
-    // Remova uma task da listagem pelo ID
+  const handleToggleTaskCompletion = (id: string) => {
+    const newTasksList = tasks
+      .map(task => {
+        if (task.id === id)
+          return {...task, isComplete: !task.isComplete};
+
+        return task;
+      });
+
+    setTasks(newTasksList);
+  }
+
+  const handleRemoveTask = (id: string) => {
+    const newTasksList = tasks
+      .filter(task => task.id !== id);
+
+    setTasks(newTasksList);
   }
 
   return (
     <section className="task-list container">
       <header>
-        <h2>Minhas tasks</h2>
+        <h2>My tasks</h2>
 
-        <div className="input-group">
-          <input 
-            type="text" 
-            placeholder="Adicionar novo todo" 
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            value={newTaskTitle}
-          />
-          <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
-            <FiCheckSquare size={16} color="#fff"/>
-          </button>
+        <div>
+          <div className="input-group">
+            <input 
+              type="text" 
+              placeholder="Add new to do" 
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              value={newTaskTitle}
+            />
+            <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
+              <FiCheckSquare size={16} color="#fff"/>
+            </button>
+          </div>
+          <div className="bar-error" hidden={!isInvalidTitle}>
+            <i className="ico">&#9747;</i> Task Title Invalid!
+          </div>
         </div>
       </header>
 

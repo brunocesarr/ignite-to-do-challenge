@@ -159,3 +159,17 @@ section.task-list {
     } 
   }
 }
+
+.bar-error {
+  margin: 5px;
+  color: #ba3939;
+  background: #fafafa;
+  
+  i.ico {
+    display: inline-block;
+    width: 20px;
+    text-align: center; 
+    font-style: normal;
+    font-weight: bold;
+  }
+}

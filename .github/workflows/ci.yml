@@ -1,0 +1,60 @@
+name: CI/CD
+
+on:
+  push:
+    branches: 
+      - master
+      - develop
+      - 'releases/**'
+      - 'features/**'
+      - 'hotfixes/**'
+  pull_request:
+    branches:
+      - master
+      - develop
+      - 'releases/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run the tests and generate coverage report
+      run: npm run test:coverage
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+
+    - name: Run lint report
+      if: github.event_name != 'pull_request'
+      run: npm run lint
+
+    - name: Build
+      if: contains(github.ref, 'releases') || contains(github.ref, 'master')
+      run: npm run build
+
+    - name: Deploy
+      if: contains(github.ref, 'releases') || contains(github.ref, 'master')
+      run: |
+        git config --global user.name brunocesarr
+        git config --global user.email brunoc.15@hotmail.com
+        git remote set-url origin https://${github_token}@github.com/${repository}
+        npm run deploy
+      env:
+        github_token: ${{ secrets.ACTIONS_DEPLOY_ACCESS_TOKEN }}
+        repository: ${{ github.repository }}
